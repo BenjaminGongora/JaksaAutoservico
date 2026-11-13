@@ -1,0 +1,611 @@
+/* src/pages/PasajerosAsientos.css */
+.pa {
+  padding: 30px 60px 0;
+  background: var(--gris-fondo);
+}
+
+.pa__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e2e8f5;
+  gap: 20px;
+}
+
+.pa__volver {
+  background: var(--blanco);
+  color: var(--azul);
+  font-weight: 800;
+  font-size: 18px;
+  padding: 12px 26px;
+  border-radius: var(--radio-boton);
+  box-shadow: 0 4px 14px rgba(30, 90, 255, 0.1);
+}
+
+.pa__info {
+  flex: 1;
+  text-align: center;
+}
+
+.pa__titulo {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--gris-texto);
+}
+
+.pa__sub {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gris-suave);
+}
+
+.pa__paso {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gris-suave);
+  background: var(--blanco);
+  padding: 10px 20px;
+  border-radius: var(--radio-boton);
+}
+
+.pa__contenido {
+  flex: 1;
+  overflow: hidden;
+  padding: 24px 0;
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 30px;
+}
+
+/* === IZQUIERDA === */
+.pa__pasajeros {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.pa__seccion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pa__seccion-titulo {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--gris-texto);
+}
+
+.pa__lista-pasajeros {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-right: 6px;
+}
+
+/* Tarjeta pasajero */
+.pasajero {
+  background: var(--blanco);
+  border-radius: 20px;
+  padding: 18px 22px;
+  box-shadow: 0 8px 24px rgba(30, 90, 255, 0.08);
+  border: 3px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.pasajero:hover {
+  transform: translateY(-2px);
+}
+
+.pasajero--activo {
+  border-color: var(--color-pasajero, var(--azul));
+  box-shadow: 0 14px 34px rgba(30, 90, 255, 0.18);
+}
+
+.pasajero__cabecera {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pasajero__numero {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: var(--blanco);
+  font-weight: 900;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pasajero__estado {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gris-suave);
+}
+
+.pasajero__asiento-tag {
+  background: var(--azul-claro);
+  color: var(--azul);
+  padding: 4px 12px;
+  border-radius: var(--radio-boton);
+  font-size: 13px;
+}
+
+.pasajero__eliminar {
+  background: #ffe5e5;
+  color: var(--rojo);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.pasajero__campos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+/* === Campo triple (3 columnas) === */
+.campo--triple {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+/* Tipo doc./Número ocupa 2 columnas en la fila 1 */
+.campo--triple .campo--span2 {
+  grid-column: span 2;
+}
+.campo--doble {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.campo label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--gris-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.campo input,
+.campo select {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gris-texto);
+  background: var(--gris-fondo);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.campo input:focus,
+.campo select:focus {
+  border-color: var(--color-pasajero, var(--azul));
+  background: var(--blanco);
+}
+
+/* === DERECHA === */
+.pa__asientos-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.pa__asientos-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pa__pista {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--verde-oscuro);
+  background: #e5f9f0;
+  padding: 10px 16px;
+  border-radius: 12px;
+}
+
+.pa__bus {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  padding: 22px 26px;
+  box-shadow: 0 10px 30px rgba(30, 90, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pa__cabina {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 2px dashed #e2e8f5;
+  font-size: 24px;
+}
+
+.pa__cabina-texto {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gris-suave);
+}
+
+.pa__piso {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pa__piso-etiqueta {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--gris-suave);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.pa__grilla {
+  display: grid;
+  gap: 10px;
+}
+
+.pa__pasillo,
+.pa__vacio {
+  width: 100%;
+}
+
+.asiento-pa {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background: var(--azul-claro);
+  color: var(--azul);
+  font-size: 17px;
+  font-weight: 900;
+  border: 3px solid transparent;
+  box-shadow: 0 4px 12px rgba(30, 90, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.asiento-pa:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: var(--azul);
+}
+
+.asiento-pa--ocupado {
+  background: #e9edf5;
+  color: #b4bdd1;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.asiento-pa--asignado {
+  color: var(--blanco);
+  box-shadow: 0 10px 22px rgba(30, 90, 255, 0.28);
+}
+
+.pa__leyenda {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gris-suave);
+  flex-wrap: wrap;
+}
+
+.pa__leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pa__leyenda-cuadro {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+}
+
+.pa__leyenda-cuadro--libre {
+  background: var(--azul-claro);
+  border: 2px solid var(--azul);
+}
+
+.pa__leyenda-cuadro--ocupado {
+  background: #e9edf5;
+}
+
+.pa__leyenda-cuadro--asignado {
+  background: var(--verde);
+}
+
+.pa__resumen {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  padding: 18px 24px;
+  box-shadow: 0 10px 30px rgba(30, 90, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pa__resumen-linea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gris-suave);
+}
+
+.pa__resumen-linea strong {
+  color: var(--gris-texto);
+  font-size: 18px;
+}
+
+.pa__resumen-linea--total {
+  border-top: 2px dashed #e2e8f5;
+  padding-top: 12px;
+  font-size: 18px;
+  color: var(--gris-texto);
+}
+
+.pa__resumen-linea--total strong {
+  color: var(--verde-oscuro);
+  font-size: 
+  26px;
+}
+/* === Bloqueo de asientos hasta completar pasajero === */
+
+.pa__pista--bloqueada {
+  color: var(--rojo);
+  background: #ffe5e5;
+  padding: 10px 16px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.pa__bus--bloqueado {
+  position: relative;
+}
+
+/* Overlay suave sobre el bus cuando el pasajero activo no está completo */
+.pa__bus--bloqueado::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: var(--radio);
+  pointer-events: none;
+}
+
+/* Asiento bloqueado por datos del pasajero */
+.asiento-pa--bloqueado {
+  background: #f0f3fa;
+  color: #c3cadb;
+  border: 3px dashed #d7dcea;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.asiento-pa--bloqueado:hover {
+  transform: none;
+  border-color: #d7dcea;
+}
+
+/* Cuadro de leyenda para bloqueado */
+.pa__leyenda-cuadro--bloqueado {
+  background: #f0f3fa;
+  border: 2px dashed #d7dcea;
+}
+/* === Fase: pasajeros bloqueados (readonly) === */
+.pasajero--bloqueado {
+  cursor: default;
+}
+
+.pasajero--bloqueado .pasajero__campos input,
+.pasajero--bloqueado .pasajero__campos select {
+  background: #f3f5fa;
+  color: var(--gris-suave);
+  cursor: not-allowed;
+  border-color: #e2e8f5;
+}
+
+.pasajero--bloqueado .pasajero__campos input:focus,
+.pasajero--bloqueado .pasajero__campos select:focus {
+  border-color: #e2e8f5;
+  background: #f3f5fa;
+}
+
+/* === Modal === */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: modalFadeIn 0.15s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal__caja {
+  background: var(--blanco);
+  border-radius: 22px;
+  padding: 28px 32px;
+  max-width: 460px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: modalPop 0.2s ease-out;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.94); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal__titulo {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--gris-texto);
+  margin: 0;
+}
+
+.modal__texto {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gris-suave);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.modal__texto strong {
+  color: var(--gris-texto);
+}
+
+.modal__acciones {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    align-content: center;
+}
+/* === Campo con acción (select + input + spinner) === */
+.campo--con-accion .campo__accion {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  position: relative;
+}
+
+.campo__accion select {
+  flex: 0 0 120px;
+}
+
+.campo__accion input {
+  flex: 1;
+}
+
+.campo__spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--azul-claro);
+  border-top-color: var(--azul);
+  border-radius: 50%;
+  animation: girar 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}
+
+/* === Factura === */
+.factura {
+  background: var(--blanco);
+  border-radius: 20px;
+  padding: 18px 22px;
+  box-shadow: 0 8px 24px rgba(30, 90, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 10px;
+  flex-shrink: 0;
+}
+
+.factura__toggle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.factura__toggle input {
+  display: none;
+}
+
+.factura__toggle-caja {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 3px solid var(--azul-claro);
+  background: var(--blanco);
+  position: relative;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.factura__toggle input:checked + .factura__toggle-caja {
+  background: var(--azul);
+  border-color: var(--azul);
+}
+
+.factura__toggle input:checked + .factura__toggle-caja::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blanco);
+  font-weight: 900;
+  font-size: 18px;
+}
+
+.factura__toggle-texto {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--gris-texto);
+}
+
+.factura__campos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 6px;
+  border-top: 2px dashed #e2e8f5;
+}

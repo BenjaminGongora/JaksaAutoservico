@@ -1,0 +1,85 @@
+/* src/components/TecladoVirtual.css */
+.teclado {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  box-shadow: 0 -10px 40px rgba(30, 90, 255, 0.2);
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  padding: 20px 24px 24px;
+  z-index: 1000;
+  animation: subirTeclado 0.25s ease;
+}
+
+@keyframes subirTeclado {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.teclado__barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.teclado__titulo {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--gris-suave);
+}
+
+.teclado__cerrar {
+  background: var(--verde);
+  color: var(--blanco);
+  font-weight: 900;
+  font-size: 18px;
+  padding: 12px 28px;
+  border-radius: var(--radio-boton);
+  box-shadow: 0 8px 20px rgba(22, 199, 132, 0.35);
+}
+
+.teclado__filas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.teclado__fila {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.teclado__tecla {
+  flex: 1;
+  max-width: 90px;
+  height: 60px;
+  border-radius: 14px;
+  background: var(--gris-fondo);
+  color: var(--gris-texto);
+  font-size: 22px;
+  font-weight: 900;
+  box-shadow: 0 4px 10px rgba(30, 90, 255, 0.08);
+}
+
+.teclado__tecla:hover {
+  background: var(--azul-claro);
+}
+
+.teclado__tecla--accion {
+  background: #ffe5e5;
+  color: var(--rojo);
+  max-width: 140px;
+  font-size: 18px;
+}
+
+.teclado__tecla--espacio {
+  max-width: none;
+  flex: 3;
+  font-size: 18px;
+  background: var(--azul-claro);
+  color: var(--azul);
+}

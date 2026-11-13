@@ -1,0 +1,161 @@
+/* src/pages/VistaBoleto.css */
+.pos-ticket {
+  width: 80mm;
+  background: #fff;
+  color: #000;
+  font-family: 'Courier New', 'Nunito', monospace;
+  font-size: 11px;
+  line-height: 1.35;
+  padding: 4mm 5mm;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Logo */
+.pos-ticket__logo {
+  text-align: center;
+  margin-bottom: 4px;
+}
+.pos-ticket__logo img {
+  max-width: 45mm;
+  max-height: 16mm;
+  object-fit: contain;
+}
+
+/* Cabecera */
+.pos-ticket__head {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.pos-ticket__head .ruc,
+.pos-ticket__head .tel {
+  font-size: 10px;
+  margin: 0;
+}
+.pos-ticket__head .doc-title {
+  font-weight: 800;
+  font-size: 12px;
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+}
+.pos-ticket__head .doc-num {
+  font-weight: 800;
+  font-size: 12px;
+  margin: 0;
+}
+
+/* Separadores */
+.pos-ticket__sep {
+  text-align: center;
+  font-size: 10px;
+  color: #000;
+  letter-spacing: 1px;
+  margin: 3px 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Líneas */
+.pos-ticket__line {
+  font-size: 11px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.pos-ticket__line .value {
+  font-weight: 700;
+}
+.pos-ticket__line.small {
+  font-size: 10px;
+}
+
+/* Totales */
+.pos-ticket__totals {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.pos-ticket__totals .row {
+  display: flex;
+  justify-content: space-between;
+}
+.pos-ticket__totals .row.total {
+  font-weight: 900;
+  font-size: 12px;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed #000;
+}
+
+/* QR */
+.pos-ticket__qr {
+  text-align: center;
+  padding: 4px 0;
+}
+.pos-ticket__qr-cuadro {
+  width: 30mm;
+  height: 30mm;
+  margin: 0 auto;
+  border: 1px dashed #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #000;
+}
+
+/* Pie */
+.pos-ticket__foot {
+  text-align: center;
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.pos-ticket__foot p { margin: 0; }
+.pos-ticket__foot .brand {
+  font-weight: 900;
+  font-size: 11px;
+}
+.pos-ticket__foot .web {
+  font-size: 10px;
+  text-decoration: underline;
+}
+
+/* Impresión */
+@page {
+  size: 80mm auto;
+  margin: 0;
+}
+
+@media print {
+  body { margin: 0; padding: 0; }
+  .pos-ticket { width: 80mm; padding: 3mm; }
+}
+.pos-ticket__qr {
+  text-align: center;
+  padding: 4px 0;
+}
+
+.pos-ticket__qr-img {
+  width: 32mm;
+  height: 32mm;
+  display: block;
+  margin: 0 auto;
+}
+
+.pos-ticket__qr-cuadro {
+  width: 32mm;
+  height: 32mm;
+  margin: 0 auto;
+  border: 1px dashed #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}

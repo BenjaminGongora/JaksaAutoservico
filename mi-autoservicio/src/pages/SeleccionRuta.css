@@ -1,0 +1,154 @@
+/* src/pages/SeleccionRuta.css */
+.ruta {
+  padding: 30px 60px 0;
+  background: var(--gris-fondo);
+}
+
+.ruta__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e2e8f5;
+}
+
+.ruta__volver {
+  background: var(--blanco);
+  color: var(--azul);
+  font-weight: 800;
+  font-size: 18px;
+  padding: 12px 26px;
+  border-radius: var(--radio-boton);
+  box-shadow: 0 4px 14px rgba(30, 90, 255, 0.1);
+}
+
+.ruta__titulo {
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--gris-texto);
+}
+
+.ruta__paso {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gris-suave);
+  background: var(--blanco);
+  padding: 10px 20px;
+  border-radius: var(--radio-boton);
+}
+
+.ruta__contenido {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.ruta__seccion-titulo {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--gris-texto);
+  margin-bottom: 16px;
+}
+
+.ruta__opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.ruta__opcion {
+  background: var(--blanco);
+  color: var(--gris-texto);
+  font-weight: 800;
+  font-size: 20px;
+  padding: 20px 34px;
+  border-radius: 18px;
+  border: 3px solid transparent;
+  box-shadow: 0 6px 18px rgba(30, 90, 255, 0.08);
+}
+
+.ruta__opcion:hover {
+  transform: translateY(-3px);
+  border-color: var(--azul-claro);
+}
+
+.ruta__opcion--activa {
+  background: linear-gradient(135deg, var(--azul) 0%, var(--azul-oscuro) 100%);
+  color: var(--blanco);
+  box-shadow: var(--sombra-fuerte);
+}
+
+.ruta__pista {
+  color: var(--gris-suave);
+  font-size: 17px;
+  font-weight: 600;
+  padding: 10px 0;
+}
+
+.ruta__fechas {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.ruta__fecha {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 110px;
+  padding: 18px 0;
+  border-radius: 18px;
+  background: var(--blanco);
+  box-shadow: 0 6px 18px rgba(30, 90, 255, 0.08);
+  border: 3px solid transparent;
+}
+
+.ruta__fecha:hover {
+  transform: translateY(-3px);
+  border-color: var(--azul-claro);
+}
+
+.ruta__fecha--activa {
+  background: linear-gradient(135deg, var(--verde) 0%, var(--verde-oscuro) 100%);
+  color: var(--blanco);
+  box-shadow: 0 14px 30px rgba(22, 199, 132, 0.35);
+}
+
+.ruta__fecha-dia {
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.75;
+  text-transform: uppercase;
+}
+
+.ruta__fecha-numero {
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.ruta__fecha-mes {
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+.ruta__footer {
+  padding: 24px 0;
+  border-top: 2px solid #e2e8f5;
+  display: flex;
+  justify-content: center;
+}
+
+.ruta__error {
+  background: #ffe5e5;
+  color: var(--rojo);
+  padding: 18px 26px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 18px;
+}

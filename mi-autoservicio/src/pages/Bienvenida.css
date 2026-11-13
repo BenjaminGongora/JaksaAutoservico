@@ -1,0 +1,111 @@
+/* src/pages/Bienvenida.css */
+.bienvenida {
+  position: relative;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60px 60px;
+  background: radial-gradient(circle at 20% 0%, #e8efff 0%, var(--gris-fondo) 60%);
+  overflow: hidden;
+}
+
+.bienvenida__fondo-decorativo {
+  position: absolute;
+  top: -200px;
+  right: -200px;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(30, 90, 255, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.bienvenida__header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+.bienvenida__logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--verde);
+}
+
+.bienvenida__logo-icono {
+  font-size: 44px;
+  animation: flotar 3s ease-in-out infinite;
+}
+
+@keyframes flotar {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+.bienvenida__contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 30px;
+  z-index: 2;
+}
+
+.bienvenida__titulo {
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1.15;
+  color: var(--gris-texto);
+}
+
+.bienvenida__titulo-resaltado {
+  background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bienvenida__subtitulo {
+  font-size: 24px;
+  color: var(--gris-suave);
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.bienvenida__footer {
+  display: flex;
+  gap: 40px;
+  z-index: 2;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.bienvenida__paso {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--gris-suave);
+  background: var(--blanco);
+  padding: 14px 26px;
+  border-radius: var(--radio-boton);
+  box-shadow: 0 6px 18px rgba(30, 90, 255, 0.08);
+}
+
+.bienvenida__paso-numero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--azul-claro);
+  color: var(--verde);
+  font-weight: 900;
+}

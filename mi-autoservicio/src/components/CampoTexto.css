@@ -1,0 +1,50 @@
+/* src/components/CampoTexto.css */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.campo__label {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--gris-texto);
+}
+
+.campo__caja {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--blanco);
+  border: 3px solid #e2e8f5;
+  border-radius: 18px;
+  padding: 4px 20px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.campo--activo .campo__caja {
+  border-color: var(--azul);
+  box-shadow: 0 8px 24px rgba(30, 90, 255, 0.15);
+}
+
+.campo__icono {
+  font-size: 22px;
+}
+
+.campo__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gris-texto);
+  padding: 18px 0;
+  min-width: 0;
+}
+
+.campo__input::placeholder {
+  color: #b4bdd1;
+  font-weight: 600;
+}
