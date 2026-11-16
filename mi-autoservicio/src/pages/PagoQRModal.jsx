@@ -1,50 +1,62 @@
 // src/pages/PagoQRModal.jsx
 import { useEffect, useRef, useState } from 'react';
 import Boton from '../components/Boton';
+import ErrorModal from '../components/ErrorModal';
 import { crearOrdenPago, estadoOrdenPago, simularPagoOrden } from '../services/culqui';
 import { expirarReserva } from '../services/api';
+import { normalizarError } from '../services/errores';
 import './PagoQRModal.css';
 
-const ES_PRUEBAS = true; // muestra el botón de simulación
+const ES_PRUEBAS = true;
+const MAX_FALLOS_POLLING = 3;
 
 export default function PagoQRModal({ reserva, total, onPagado, onCerrar, onExpirado }) {
   const { idReserva, fechaExpiracion } = reserva;
 
   const [orden, setOrden] = useState(null);
   const [estado, setEstado] = useState('creando'); // creando | esperando | confirmando | error
-  const [error, setError] = useState(null);
+  const [errorModal, setErrorModal] = useState(null);
   const [segundos, setSegundos] = useState(0);
 
   const pollRef = useRef(null);
   const timerRef = useRef(null);
   const creadaRef = useRef(false);
+  const fallosPollingRef = useRef(0);
 
   // 1) Crear la orden
   useEffect(() => {
     if (creadaRef.current) return;
     creadaRef.current = true;
-    (async () => {
-      try {
-        const data = await crearOrdenPago({
-          idReserva,
-          monto: total,
-          expiracion: Math.floor(new Date(fechaExpiracion).getTime() / 1000),
-        });
-        setOrden(data);
-        setEstado('esperando');
-      } catch (e) {
-        setError(e.message);
-        setEstado('error');
-      }
-    })();
+    crearOrden();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 2) Polling del estado
+  const crearOrden = async () => {
+    setErrorModal(null);
+    setEstado('creando');
+    try {
+      const data = await crearOrdenPago({
+        idReserva,
+        monto: total,
+        expiracion: Math.floor(new Date(fechaExpiracion).getTime() / 1000),
+      });
+      setOrden(data);
+      setEstado('esperando');
+    } catch (e) {
+      setErrorModal(normalizarError(e));
+      setEstado('error');
+    }
+  };
+
+  // 2) Polling
   useEffect(() => {
-    if (!orden) return;
+    if (!orden || estado !== 'esperando') return;
+
     pollRef.current = setInterval(async () => {
       try {
         const r = await estadoOrdenPago(orden.orderId);
+        fallosPollingRef.current = 0; // resetear contador si responde
+
         if (r.estado === 'confirmando') setEstado('confirmando');
         if (r.estado === 'confirmado') {
           clearInterval(pollRef.current);
@@ -52,25 +64,50 @@ export default function PagoQRModal({ reserva, total, onPagado, onCerrar, onExpi
         }
         if (r.estado === 'error_confirmacion') {
           clearInterval(pollRef.current);
-          setError(r.error || 'Pago recibido pero no se pudo emitir el boleto. Contacta al personal.');
           setEstado('error');
+          setErrorModal({
+            tipo: 'servidor',
+            mensaje:
+              r.error ||
+              'Pago recibido, pero no se pudo emitir el boleto. Llama al personal del kiosco.',
+            reintentable: true,
+            detalle: r.error || 'error_confirmacion',
+          });
         }
       } catch (e) {
-        console.warn('Polling falló:', e.message);
+        fallosPollingRef.current += 1;
+        console.warn(
+          `Polling falló (${fallosPollingRef.current}/${MAX_FALLOS_POLLING}):`,
+          e.message
+        );
+        if (fallosPollingRef.current >= MAX_FALLOS_POLLING) {
+          clearInterval(pollRef.current);
+          setEstado('error');
+          setErrorModal(normalizarError(e));
+        }
       }
     }, 3000);
+
     return () => clearInterval(pollRef.current);
-  }, [orden]);
+  }, [orden, estado]);
 
   // 3) Countdown local + expiración
   useEffect(() => {
     timerRef.current = setInterval(() => {
-      const restantes = Math.max(0, Math.floor((new Date(fechaExpiracion) - new Date()) / 1000));
+      const restantes = Math.max(
+        0,
+        Math.floor((new Date(fechaExpiracion) - new Date()) / 1000)
+      );
       setSegundos(restantes);
       if (restantes === 0 && estado === 'esperando') {
         clearInterval(pollRef.current);
-        setError('La reserva expiró. Vuelve a elegir tus asientos.');
         setEstado('error');
+        setErrorModal({
+          tipo: 'conflicto',
+          mensaje: 'La reserva expiró. Vuelve a elegir tus asientos.',
+          reintentable: false,
+          detalle: 'reserva_expirada',
+        });
         onExpirado?.();
       }
     }, 1000);
@@ -80,9 +117,26 @@ export default function PagoQRModal({ reserva, total, onPagado, onCerrar, onExpi
   const cerrar = async () => {
     clearInterval(pollRef.current);
     clearInterval(timerRef.current);
-    // Si el usuario cancela, expiramos la reserva en Jaksa
     try { await expirarReserva(idReserva); } catch {}
     onCerrar();
+  };
+
+  // --- Acciones del ErrorModal ---
+  const reintentar = () => {
+    fallosPollingRef.current = 0;
+    if (!orden) {
+      // Falló la creación → reintentar creación
+      crearOrden();
+    } else {
+      // Falló el polling → reanudar
+      setErrorModal(null);
+      setEstado('esperando');
+    }
+  };
+
+  const volver = async () => {
+    setErrorModal(null);
+    await cerrar();
   };
 
   const formatearMMSS = (seg) => {
@@ -141,13 +195,6 @@ export default function PagoQRModal({ reserva, total, onPagado, onCerrar, onExpi
               <p>¡Pago recibido! Emitiendo tus boletos...</p>
             </div>
           )}
-
-          {estado === 'error' && (
-            <div className="modal-pago__error">
-              <span className="modal-pago__error-icono">⚠️</span>
-              <p>{error}</p>
-            </div>
-          )}
         </div>
 
         {estado !== 'confirmando' && (
@@ -156,6 +203,13 @@ export default function PagoQRModal({ reserva, total, onPagado, onCerrar, onExpi
           </Boton>
         )}
       </div>
+
+      <ErrorModal
+        error={errorModal}
+        onReintentar={reintentar}
+        onVolver={volver}
+        textoVolver="Volver a pasajeros"
+      />
     </div>
   );
 }

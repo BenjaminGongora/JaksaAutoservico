@@ -1,14 +1,15 @@
 // src/pages/ReservaTemporal.jsx
 import { useEffect, useRef, useState } from 'react';
 import Boton from '../components/Boton';
+import ErrorModal from '../components/ErrorModal';
 import { reservaTemporal, extenderReserva, expirarReserva } from '../services/api';
+import { normalizarError } from '../services/errores';
 import PagoQRModal from './PagoQRModal';
 import './ReservaTemporal.css';
 
 const TIEMPO_INICIAL_MIN = 5;
 const TIEMPO_EXTENDER_MIN = 1;
 
-// Datos fijos del kiosco (puedes moverlos a config)
 const KIOSCO = {
   telefono: '923253580',
   email: 'benjaminandresgongora@gmail.com',
@@ -25,6 +26,29 @@ function formatearMMSS(seg) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
+// Payload extraído: una sola fuente de verdad para POST inicial y reintento
+function construirPayload(itinerario, pasajeros, factura) {
+  return {
+    idItinerario: itinerario.id,
+    tiempoBloqueo: TIEMPO_INICIAL_MIN,
+    telefono: KIOSCO.telefono,
+    email: KIOSCO.email,
+    pasajeros: pasajeros.map(p => ({
+      asiento: p.asiento,
+      nombres: p.nombres,
+      apellidos: p.apellidos,
+      tipoDocumento: p.tipoDocumento,
+      documentoIdentidad: p.documentoIdentidad,
+      sexo: p.sexo,
+      fechaNacimiento: p.fechaNacimiento,
+      descuento: p.descuento || 0,
+    })),
+    puntoEmbarque: itinerario.puntosEmbarque?.[0]?.terminal?.id || 0,
+    puntoDesembarque: itinerario.puntosDesembarque?.[0]?.terminal?.id || 0,
+    ...(factura ? { factura } : {}),
+  };
+}
+
 export default function ReservaTemporal({ datos, onPagar, onCancelar, onVolver }) {
   const { itinerario, contexto, pasajeros, factura } = datos;
 
@@ -34,61 +58,37 @@ export default function ReservaTemporal({ datos, onPagar, onCancelar, onVolver }
   const [cargando, setCargando] = useState(true);
   const [extendiendo, setExtendiendo] = useState(false);
   const [cancelando, setCancelando] = useState(false);
-  const [error, setError] = useState(null);
+  const [errorModal, setErrorModal] = useState(null);
   const [expirada, setExpirada] = useState(false);
 
-  // Estados del modal de pago
   const [mostrarPago, setMostrarPago] = useState(false);
   const [ticketsPagados, setTicketsPagados] = useState(null);
 
   const intervalRef = useRef(null);
   const canceladaRef = useRef(false);
   const creandoRef = useRef(false);
-  
+
   const total = pasajeros.reduce((s, p) => s + (p.precio || 0), 0);
 
- // 1) Crear la reserva al montar (una sola vez, aunque StrictMode remonte)
-useEffect(() => {
-  if (creandoRef.current) return;
-  creandoRef.current = true;
+  // 1) Crear reserva (una sola vez)
+  useEffect(() => {
+    if (creandoRef.current) return;
+    creandoRef.current = true;
 
-  (async () => {
-    try {
-      const payload = {
-        idItinerario: itinerario.id,
-        tiempoBloqueo: TIEMPO_INICIAL_MIN,
-        telefono: KIOSCO.telefono,
-        email: KIOSCO.email,
-        pasajeros: pasajeros.map(p => ({
-          asiento: p.asiento,
-          nombres: p.nombres,
-          apellidos: p.apellidos,
-          tipoDocumento: p.tipoDocumento,
-          documentoIdentidad: p.documentoIdentidad,
-          sexo: p.sexo,
-          fechaNacimiento: p.fechaNacimiento,
-          descuento: p.descuento || 0,
-        })),
-        puntoEmbarque: itinerario.puntosEmbarque?.[0]?.terminal?.id || 0,
-        puntoDesembarque: itinerario.puntosDesembarque?.[0]?.terminal?.id || 0,
-        ...(factura ? { factura } : {}),
-      };
-
-      console.log('📤 POST reserva-temporal:', payload);
-      const data = await reservaTemporal(payload);
-      console.log('✅ Reserva creada:', data);
-
-      setIdReserva(data.idReserva);
-      setFechaExpiracion(data.fechaHoraExpiracion);
-      setSegundos(segundosRestantes(data.fechaHoraExpiracion));
-      setCargando(false);
-    } catch (e) {
-      console.error('❌ Error al crear reserva:', e);
-      setError(e.message || 'No se pudo crear la reserva');
-      setCargando(false);
-    }
-  })();
-}, []);
+    (async () => {
+      try {
+        const data = await reservaTemporal(construirPayload(itinerario, pasajeros, factura));
+        setIdReserva(data.idReserva);
+        setFechaExpiracion(data.fechaHoraExpiracion);
+        setSegundos(segundosRestantes(data.fechaHoraExpiracion));
+        setCargando(false);
+      } catch (e) {
+        setErrorModal(normalizarError(e));
+        setCargando(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 2) Countdown
   useEffect(() => {
@@ -105,18 +105,17 @@ useEffect(() => {
     return () => clearInterval(intervalRef.current);
   }, [fechaExpiracion]);
 
-  // 3) Extender tiempo
+  // 3) Extender
   const extender = async () => {
     if (!idReserva || extendiendo) return;
     setExtendiendo(true);
-    setError(null);
     try {
       const data = await extenderReserva(idReserva, TIEMPO_EXTENDER_MIN);
       setFechaExpiracion(data.fechaHoraExpiracion);
       setSegundos(segundosRestantes(data.fechaHoraExpiracion));
       setExpirada(false);
     } catch (e) {
-      setError(e.message || 'No se pudo extender la reserva');
+      setErrorModal(normalizarError(e));
     } finally {
       setExtendiendo(false);
     }
@@ -143,7 +142,7 @@ useEffect(() => {
   const handleVolver = () => cancelarYSalir(onVolver);
   const handleCancelar = () => cancelarYSalir(onCancelar);
 
-  // 5) Pagar → abrir modal (NO cambia de pantalla)
+  // 5) Pagar
   const handlePagar = () => {
     if (expirada) return;
     setMostrarPago(true);
@@ -157,11 +156,32 @@ useEffect(() => {
 
   const handleCerrarModal = () => {
     setMostrarPago(false);
-    // El modal ya expiró la reserva en Jaksa; volvemos a pasajeros
     onVolver();
   };
 
-  // Colores del countdown según tiempo restante
+  // --- Acciones del ErrorModal ---
+  const reintentarCreacion = async () => {
+    setErrorModal(null);
+    setCargando(true);
+    try {
+      const data = await reservaTemporal(construirPayload(itinerario, pasajeros, factura));
+      setIdReserva(data.idReserva);
+      setFechaExpiracion(data.fechaHoraExpiracion);
+      setSegundos(segundosRestantes(data.fechaHoraExpiracion));
+    } catch (e) {
+      setErrorModal(normalizarError(e));
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const volverAlInicioDesdeError = () => {
+    setErrorModal(null);
+    // Si ya hay reserva, expirarla antes de salir (evita asientos colgados)
+    if (idReserva) cancelarYSalir(onCancelar);
+    else onCancelar();
+  };
+
   const totalSegundos = TIEMPO_INICIAL_MIN * 60;
   const porcentaje = Math.min(100, Math.max(0, (segundos / totalSegundos) * 100));
   const urgente = segundos <= 120;
@@ -193,18 +213,8 @@ useEffect(() => {
           </div>
         )}
 
-        {!cargando && error && (
-          <div className="reserva__error">
-            <span>⚠️ {error}</span>
-            <Boton tamano="mediano" variante="secundario" onClick={handleVolver}>
-              Volver
-            </Boton>
-          </div>
-        )}
-
-        {!cargando && !error && (
+        {!cargando && !errorModal && (
           <>
-            {/* Countdown */}
             <div className={`reserva__countdown ${urgente ? 'reserva__countdown--urgente' : ''} ${expirada ? 'reserva__countdown--expirada' : ''}`}>
               <div className="reserva__countdown-header">
                 <span className="reserva__countdown-label">
@@ -227,7 +237,6 @@ useEffect(() => {
               </p>
             </div>
 
-            {/* Resumen de pasajeros */}
             <div className="reserva__resumen">
               <h3 className="reserva__resumen-titulo">🧾 Resumen</h3>
               <div className="reserva__lista">
@@ -265,7 +274,6 @@ useEffect(() => {
               )}
             </div>
 
-            {/* Acciones */}
             <div className="reserva__acciones">
               <Boton
                 variante="secundario"
@@ -299,7 +307,6 @@ useEffect(() => {
         )}
       </main>
 
-      {/* Modal de pago */}
       {mostrarPago && !ticketsPagados && (
         <PagoQRModal
           reserva={{ idReserva, fechaExpiracion }}
@@ -309,6 +316,13 @@ useEffect(() => {
           onExpirado={() => setExpirada(true)}
         />
       )}
+
+      <ErrorModal
+        error={errorModal}
+        onReintentar={reintentarCreacion}
+        onVolver={volverAlInicioDesdeError}
+        textoVolver="Volver a itinerarios"
+      />
     </div>
   );
 }

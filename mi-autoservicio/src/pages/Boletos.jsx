@@ -1,6 +1,7 @@
 // src/pages/Boletos.jsx
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Boton from '../components/Boton';
+import Toast from '../components/Toast';
 import VistaBoleto from './VistaBoleto';
 import './Boletos.css';
 
@@ -48,43 +49,75 @@ function construirHtmlBoleto(elemento) {
 
 export default function Boletos({ tickets, contexto, factura, onNuevaVenta }) {
   const impresionHecha = useRef(false);
+  const [errorImpresion, setErrorImpresion] = useState(null);
+  const ticketsFallidosRef = useRef([]);
 
-  useEffect(() => {
-  console.log('🟢 Boletos montado. tickets:', tickets?.length);
-  console.log('🟢 window.electronAPI:', window.electronAPI);
+  const imprimirTicket = async (t) => {
+    const el = document.getElementById(`boleto-${t.numeroBoleto}`);
+    if (!el) return { ok: false, motivo: 'No se encontró el boleto en pantalla' };
 
-  if (impresionHecha.current) return;
-  if (!tickets || tickets.length === 0) return;
-  impresionHecha.current = true;
+    const html = construirHtmlBoleto(el);
 
-  const imprimirTodos = async () => {
-    for (const t of tickets) {
-      const el = document.getElementById(`boleto-${t.numeroBoleto}`);
-      console.log('🔍 Elemento del boleto:', el?.id);
-      if (!el) continue;
-
-      const html = construirHtmlBoleto(el);
-      console.log('📤 Enviando a imprimir, length HTML:', html.length);
-
-      if (window.electronAPI?.imprimirBoleto) {
-        try {
-          const r = await window.electronAPI.imprimirBoleto(html);
-          console.log('🖨️ Resultado impresión:', r);
-        } catch (e) {
-          console.error('❌ Error de impresión:', e);
-        }
-      } else {
-        window.print();
+    if (window.electronAPI?.imprimirBoleto) {
+      try {
+        const r = await window.electronAPI.imprimirBoleto(html);
+        if (r?.success === true) return { ok: true };
+        return {
+          ok: false,
+          motivo: r?.error || 'Error desconocido de impresión',
+        };
+      } catch (e) {
+        return { ok: false, motivo: e.message || 'Error de impresión' };
       }
+    }
+    window.print();
+    return { ok: true };
+  };
 
-      await new Promise(r => setTimeout(r, 1200));
+  const imprimirTodos = async (lista = tickets) => {
+    const fallidos = [];
+    let ultimoMotivo = null;
+
+    for (const t of lista) {
+      const res = await imprimirTicket(t);
+      if (!res.ok) {
+        fallidos.push(t);
+        ultimoMotivo = res.motivo;
+      }
+      await new Promise((r) => setTimeout(r, 1200));
+    }
+
+    ticketsFallidosRef.current = fallidos;
+
+    if (fallidos.length > 0) {
+      const mensaje =
+        fallidos.length === lista.length
+          ? `No se pudo imprimir. ${ultimoMotivo || 'Revisa la impresora.'}`
+          : `No se pudieron imprimir ${fallidos.length} de ${lista.length} boletos. ${ultimoMotivo || ''}`;
+      setErrorImpresion(mensaje);
+    } else {
+      setErrorImpresion(null);
     }
   };
 
-  // SIN clearTimeout: no lo canceles al desmontar por StrictMode
-  setTimeout(imprimirTodos, 800);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+  useEffect(() => {
+    if (impresionHecha.current) return;
+    if (!tickets || tickets.length === 0) return;
+    impresionHecha.current = true;
+
+    // SIN clearTimeout: no cancelar al desmontar por StrictMode
+    setTimeout(() => imprimirTodos(tickets), 800);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const reintentarImpresion = () => {
+    const fallidos = ticketsFallidosRef.current;
+    if (fallidos.length > 0) {
+      setErrorImpresion(null);
+      imprimirTodos(fallidos);
+    }
+  };
+
   return (
     <div className="pagina boletos">
       <header className="boletos__header">
@@ -113,14 +146,20 @@ export default function Boletos({ tickets, contexto, factura, onNuevaVenta }) {
       </main>
 
       <footer className="boletos__footer">
-        <Boton
-          tamano="grande"
-          icono="✨"
-          onClick={onNuevaVenta}
-        >
+        <Boton tamano="grande" icono="✨" onClick={onNuevaVenta}>
           Nueva venta
         </Boton>
       </footer>
+
+      {errorImpresion && (
+        <Toast
+          mensaje={errorImpresion}
+          onCerrar={() => setErrorImpresion(null)}
+          onAccion={reintentarImpresion}
+          textoAccion="Reintentar impresión"
+          duracionMs={0} // no auto-cerrar: el usuario decide
+        />
+      )}
     </div>
   );
 }

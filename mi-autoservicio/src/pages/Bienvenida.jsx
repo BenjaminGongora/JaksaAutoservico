@@ -1,16 +1,44 @@
 // src/pages/Bienvenida.jsx
+import { useEffect, useRef } from 'react';
 import Boton from '../components/Boton';
 import './Bienvenida.css';
+import logoJaksa from '../assets/logo_jaksa.png';  
 
-export default function Bienvenida({ onComenzar }) {
+export default function Bienvenida({ onComenzar, onAdmin }) {
+  const clicksRef = useRef([]);
+  const timeoutRef = useRef(null);
+
+  const handleLogoClick = () => {
+    if (!onAdmin) return;
+
+    const ahora = Date.now();
+    clicksRef.current = clicksRef.current.filter((t) => ahora - t < 3000);
+    clicksRef.current.push(ahora);
+
+    // Reinicia el timeout para limpiar
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      clicksRef.current = [];
+    }, 3500);
+
+    if (clicksRef.current.length >= 5) {
+      clicksRef.current = [];
+      onAdmin();
+    }
+  };
+
+  useEffect(() => {
+    return () => clearTimeout(timeoutRef.current);
+  }, []);
+
   return (
     <div className="pagina bienvenida">
       <div className="bienvenida__fondo-decorativo" />
 
       <header className="bienvenida__header">
-        <div className="bienvenida__logo">
-          <span className="bienvenida__logo-icono"><img src="src/assets/logo_jaksa.png" alt="Logo" height="180" /></span>
-          {/* <span className="bienvenida__logo-texto">Jaksa</span> */}
+        <div className="bienvenida__logo" onClick={handleLogoClick}>
+          <span className="bienvenida__logo-icono">
+            <img src={logoJaksa} alt="Logo" height="180" />          </span>
         </div>
       </header>
 
